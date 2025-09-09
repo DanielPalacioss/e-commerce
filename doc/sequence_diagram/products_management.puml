@@ -1,0 +1,19 @@
+@startuml
+start
+:Admin autenticado accede a gestión de productos;
+
+partition "Gestión CRUD" {
+  :Crear/Editar/Eliminar/Consultar producto;
+
+  if (¿Subir imagen?) then (Sí)
+    :Admin sube imagen a Cloudinary;
+    :Sistema guarda URL en BD;
+  endif
+
+  :Sistema guarda/actualiza información del producto;
+}
+
+:Productos actualizados se muestran en catálogo;
+
+stop
+@enduml

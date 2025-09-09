@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+actor Usuario as user
+
+rectangle "Frontend (Vue)" {
+  component "Vista (V)\nComponentes Vue" as vue
+}
+
+rectangle "Backend (Spring Boot)" {
+  component "Controller" as controller
+  component "Service" as service
+  component "Repository" as repository
+  component "Entity" as entity
+}
+
+database "Data base" as db
+
+' Flujo de interacción
+user --> vue : Interacción (clic, formulario)
+vue --> controller : Request HTTP (JSON)
+controller --> service : Lógica de negocio
+service --> repository : Operaciones de datos
+repository --> entity : Mapeo objeto-relacional
+repository --> db : Query SQL
+
+' Respuesta hacia el usuario
+db --> repository
+repository --> service
+service --> controller
+controller --> vue : Response JSON
+vue --> user : Renderiza vista
+@enduml

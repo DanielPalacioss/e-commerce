@@ -1,0 +1,14 @@
+@startuml
+start
+:Admin consulta stock de productos;
+
+if (¿Actualizar cantidad?) then (Sí)
+  :Admin modifica stock;
+  :Sistema guarda cambio en BD;
+  :Sistema actualiza campo updatedAt;
+else (No)
+  :Fin de consulta;
+endif
+
+stop
+@enduml

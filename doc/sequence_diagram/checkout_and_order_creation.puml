@@ -1,0 +1,15 @@
+@startuml
+start
+:Cliente accede al carrito y procede al checkout;
+:Sistema valida disponibilidad en stock;
+
+if (¿Stock suficiente?) then (Sí)
+  :Sistema genera orden con estado "Pendiente";
+  :Sistema descuenta cantidades del inventario;
+  :Sistema crea transacción asociada;
+else (No)
+  :Sistema notifica falta de stock;
+endif
+
+stop
+@enduml

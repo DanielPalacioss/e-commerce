@@ -1,0 +1,13 @@
+@startuml
+start
+:Usuario ingresa correo y contraseña;
+
+if (¿Credenciales válidas?) then (Sí)
+  :Sistema genera token JWT con rol correspondiente;
+  :Sistema permite acceso según rol;
+else (No)
+  :Sistema muestra mensaje de error;
+endif
+
+stop
+@enduml

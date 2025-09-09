@@ -1,0 +1,16 @@
+@startuml
+start
+:Cliente accede al formulario de registro;
+:Ingresa correo electrónico y contraseña;
+
+if (¿Correo ya registrado?) then (Sí)
+  :Sistema notifica al usuario "Correo ya registrado";
+  stop
+else (No)
+  :Sistema guarda la información en BD;
+  :Sistema asigna rol "Cliente";
+  :Sistema confirma el registro;
+endif
+
+stop
+@enduml

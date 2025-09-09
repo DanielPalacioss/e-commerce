@@ -1,0 +1,36 @@
+services:
+  e-commerce:
+    image: e-commerce
+    container_name: container-e-commerce
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - e-commerce-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - e-commerce-network
+    volumes:
+      - e-commerce-data:/var/lib/postgresql/data
+
+networks:
+  e-commerce-network:
+
+volumes:
+  e-commerce-data:

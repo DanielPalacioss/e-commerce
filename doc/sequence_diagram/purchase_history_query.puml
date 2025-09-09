@@ -1,0 +1,12 @@
+@startuml
+start
+:Usuario (Cliente/Admin) accede a historial;
+
+if (¿Cliente?) then (Sí)
+  :Consulta historial de sus órdenes y facturas;
+else (Admin)
+  :Consulta historial de todas las transacciones/facturas;
+endif
+
+stop
+@enduml

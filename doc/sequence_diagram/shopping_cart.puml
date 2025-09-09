@@ -1,0 +1,14 @@
+@startuml
+start
+:Cliente autenticado selecciona producto del catálogo;
+:Elige cantidad y añade al carrito;
+:Sistema guarda selección en estado (Vuex);
+
+repeat
+  if (¿Cliente modifica/elimina productos?) then (Sí)
+    :Sistema actualiza carrito;
+  endif
+repeat while (Más cambios?)
+
+stop
+@enduml

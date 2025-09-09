@@ -1,0 +1,11 @@
+@startuml
+start
+:Usuario (Público/Cliente) accede al catálogo;
+:Sistema carga lista de productos (imagen, nombre, precio, descripción);
+
+if (¿Cliente busca/filtra productos?) then (Sí)
+  :Sistema muestra resultados filtrados;
+endif
+
+stop
+@enduml
