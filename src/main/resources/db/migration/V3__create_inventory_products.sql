@@ -4,5 +4,7 @@ CREATE TABLE "inventory_products" (
     "description" text,
     "price" numeric(10,2) NOT NULL,
     "image_url" text,
+    "image_public_id" text,
+    "category": varchar(20),
     "created_at" timestamp DEFAULT (now())
 );
