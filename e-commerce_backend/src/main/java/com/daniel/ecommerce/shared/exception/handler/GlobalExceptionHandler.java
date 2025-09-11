@@ -1,7 +1,9 @@
-package com.daniel.ecommerce.exception;
+package com.daniel.ecommerce.shared.exception.handler;
 
-import com.daniel.ecommerce.dto.error.InvalidParam;
-import org.slf4j.MDC;
+import com.daniel.ecommerce.shared.exception.dto.InvalidParam;
+import com.daniel.ecommerce.shared.exception.custom.ConflictException;
+import com.daniel.ecommerce.shared.exception.custom.FileUploadException;
+import com.daniel.ecommerce.shared.exception.custom.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -21,40 +23,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problem.setTitle("Resource not found");
-        problem.setDetail(ex.getMessage());
-        problem.setInstance(URI.create(request.getRequestURI()));
+        ProblemDetail problem = buildProblem(HttpStatus.NOT_FOUND, "Resource not found", ex.getMessage(), request);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ProblemDetail> handleConflict(ConflictException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        problem.setTitle("Conflict in the request");
-        problem.setDetail(ex.getMessage());
-        problem.setInstance(URI.create(request.getRequestURI()));
+        ProblemDetail problem = buildProblem(HttpStatus.CONFLICT, "Conflict in the request", ex.getMessage(), request);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
 
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<ProblemDetail> handleFileUpload(FileUploadException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problem.setTitle("File upload error");
-        problem.setDetail(ex.getMessage());
-        problem.setInstance(URI.create(request.getRequestURI()));
-        problem.setProperty("timestamp", Instant.now());
+        ProblemDetail problem = buildProblem(HttpStatus.INTERNAL_SERVER_ERROR, "File upload error", ex.getMessage(), request);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problem.setTitle("Error de validación");
-        problem.setDetail("One or more fields are invalid");
-        problem.setInstance(URI.create(request.getRequestURI()));
-        problem.setProperty("timestamp", Instant.now());
-
+        ProblemDetail problem = buildProblem(HttpStatus.BAD_REQUEST, "Validation Error", "One or more fields are invalid", request);
         // Detalles de validación
         List<InvalidParam> invalidParams = ex.getBindingResult()
                 .getFieldErrors()
@@ -66,15 +53,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGeneric(Exception ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problem.setTitle("Internal server error");
-        problem.setDetail("An unexpected error has occurred, please contact support if it persists.");
+        ProblemDetail problem = buildProblem(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", ex.getMessage(), request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
+    }
+
+    private ProblemDetail buildProblem(HttpStatus status, String title, String detail, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(status);
+        problem.setTitle(title);
+        problem.setDetail(detail);
         problem.setInstance(URI.create(request.getRequestURI()));
         problem.setProperty("timestamp", Instant.now());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
+        return problem;
     }
 
 }

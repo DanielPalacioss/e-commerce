@@ -1,4 +1,4 @@
-package com.daniel.ecommerce.config;
+package com.daniel.ecommerce.shared.cloudinary.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

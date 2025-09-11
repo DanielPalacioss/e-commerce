@@ -3,13 +3,13 @@ DECLARE
 new_user_id uuid;
 BEGIN
     -- Insertar admin
-INSERT INTO auth_users (name, email, password, role)
-VALUES ('admin','admin@example.com', 'admin', 'admin')
+INSERT INTO auth_users (name, username, email, password, role)
+VALUES ('admin', 'admin123', 'admin@example.com', '$2a$10$vJYDRDcz0THJjBpZrxXCVuZUuAfVYLCz1Ufle/VJeN487tOQXkJJK', 'ADMIN')
     ON CONFLICT (email) DO NOTHING;
 
 -- Insertar cliente y capturar su id
-INSERT INTO auth_users (name, email, password, role)
-VALUES ('client','client@example.com', 'client123', 'client')
+INSERT INTO auth_users (name, username, email, password, role)
+VALUES ('client', 'client123','client@example.com', '$2a$10$QBvYccuyiVMqZIfCgHO3FOT8aoSlP0Osh1THonNT4c0kKIF1OyhFq', 'CLIENT')
     ON CONFLICT (email) DO NOTHING
     RETURNING id INTO new_user_id;
 

@@ -1,4 +1,4 @@
-package com.daniel.ecommerce.exception;
+package com.daniel.ecommerce.shared.exception.custom;
 
 public class ResourceNotFoundException extends RuntimeException{
 

@@ -1,3 +1,3 @@
-package com.daniel.ecommerce.dto.error;
+package com.daniel.ecommerce.shared.exception.dto;
 
 public record InvalidParam(String name, String reason) {}

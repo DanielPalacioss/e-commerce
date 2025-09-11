@@ -12,6 +12,17 @@ spring:
         ddl-auto: validate
       show-sql: true
 
+application:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    expiration: ${JWT_EXPIRATION_MILLISECOND}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+    allowed-methods: ${CORS_ALLOWED_METHODS}
+  api:
+    path:
+      prefix: ${API_PREFIX}
+
 # swagger-ui custom path
 springdoc:
   swagger-ui:
