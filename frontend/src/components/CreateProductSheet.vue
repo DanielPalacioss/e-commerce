@@ -1,0 +1,128 @@
+<script lang="ts" setup>
+import {ref, watch} from "vue";
+import {productService} from "@/api/productService";
+import type {ProductCategories, ProductRequestDTO} from "@/types/product";
+
+import Button from "@/components/ui/button/Button.vue";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
+import {Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,} from "@/components/ui/sheet";
+
+const props = defineProps<{ open: boolean }>();
+const emit = defineEmits<{ (e: "update:open", v: boolean): void; (e: "created"): void }>();
+
+const categories: ProductCategories[] = [
+  "ELECTRONICS", "FASHION", "HOME", "BEAUTY", "SPORTS", "BOOKS", "GROCERY",
+];
+
+type FormState = {
+  name: string;
+  description: string;
+  price: number | null;
+  category: ProductCategories | null;
+};
+const form = ref<FormState>({
+  name: "",
+  description: "",
+  price: 0,
+  category: null,
+});
+
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+const close = () => emit("update:open", false);
+const reset = () => {
+  form.value = {name: "", description: "", price: null, category: null};
+  error.value = null;
+};
+
+watch(() => props.open, (v) => v && reset());
+
+const save = async () => {
+  error.value = null;
+
+  if (!form.value.name.trim()) {
+    error.value = "El nombre es obligatorio";
+    return;
+  }
+  if (!form.value.price || form.value.price <= 0) {
+    error.value = "Precio debe ser mayor a 0";
+    return;
+  }
+  if (!form.value.category) {
+    error.value = "Selecciona una categoría";
+    return;
+  }
+
+  const payload: ProductRequestDTO = {
+    name: form.value.name.trim(),
+    price: form.value.price,
+    category: form.value.category,
+    ...(form.value.description.trim() ? {description: form.value.description.trim()} : {}),
+  };
+
+  loading.value = true;
+  try {
+    await productService.createProduct(payload);
+    emit("created");
+    close();
+  } catch (e: any) {
+    error.value = e?.message ?? "No se pudo crear el producto";
+  } finally {
+    loading.value = false;
+  }
+};
+</script>
+
+<template>
+  <Sheet :open="open" @update:open="v => emit('update:open', v)">
+    <SheetContent class="w-[420px]" side="right">
+      <SheetHeader>
+        <SheetTitle>Crear producto</SheetTitle>
+        <SheetDescription>Completa la información básica del producto.</SheetDescription>
+      </SheetHeader>
+
+      <div class="mt-4 grid gap-3">
+        <div class="grid gap-1">
+          <Label for="name">Nombre</Label>
+          <Input id="name" v-model="form.name" :disabled="loading" placeholder="Ej. Camiseta Dev"/>
+        </div>
+
+        <div class="grid gap-1">
+          <Label for="desc">Descripción (opcional)</Label>
+          <textarea id="desc" v-model="form.description" :disabled="loading"
+                    class="w-full rounded-md border px-3 py-2 text-sm"
+                    placeholder="Breve detalle…" rows="3"/>
+        </div>
+
+        <div class="grid gap-1">
+          <Label for="price">Precio</Label>
+          <Input id="price" v-model.number="form.price" :disabled="loading" min="0" step="0.01" type="number"/>
+        </div>
+
+        <div class="grid gap-1">
+          <Label>Categoría</Label>
+          <Select v-model="form.category">
+            <SelectTrigger class="w-full">
+              <SelectValue placeholder="Selecciona categoría"/>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+
+        <div class="mt-2 flex justify-end gap-2">
+          <Button :disabled="loading" variant="outline" @click="close">Cancelar</Button>
+          <Button :disabled="loading" @click="save">{{ loading ? "Guardando…" : "Crear" }}</Button>
+        </div>
+      </div>
+    </SheetContent>
+  </Sheet>
+</template>
