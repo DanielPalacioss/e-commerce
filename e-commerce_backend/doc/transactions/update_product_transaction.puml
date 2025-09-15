@@ -1,0 +1,54 @@
+@startuml
+actor User
+participant "OrderService" as Service
+participant "OrderRepository" as OrderRepository
+participant "ProductService" as ProductService
+
+User -> Service: updateOrder(orderId, orderRequestDTO, userId)
+activate Service
+
+Service -> OrderRepository: findById(orderId)
+activate OrderRepository
+OrderRepository --> Service: Order or NotFound
+deactivate OrderRepository
+
+alt Orden no encontrada
+    Service -> User: throw ResourceNotFoundException
+else Orden encontrada
+    alt Estado != PENDING
+        Service -> User: throw ConflictException
+    else Estado == PENDING
+        Service -> ProductService: findAllByIdIn(productIds)
+        activate ProductService
+        ProductService --> Service: List<Product>
+        deactivate ProductService
+
+        alt Faltan productos
+            Service -> User: throw ConflictException
+        else Productos válidos
+            loop Para cada producto
+                Service -> Service: Validar cantidad > 0
+                alt Cantidad inválida
+                    Service -> User: throw ConflictException
+                else Cantidad válida
+                    Service -> Service: Crear OrderItem\nSumar al total
+                end
+            end
+
+            Service -> Service: order.setShippingAddress(...)
+            Service -> Service: order.setItems(orderItems)
+            Service -> Service: order.setTotalPrice(total)
+            Service -> Service: order.setUser(userId) [opcional]
+
+            Service -> OrderRepository: save(order)
+            activate OrderRepository
+            OrderRepository --> Service: Order
+            deactivate OrderRepository
+
+            Service -> User: return new OrderResponseDTO(order)
+        end
+    end
+end
+
+deactivate Service
+@enduml

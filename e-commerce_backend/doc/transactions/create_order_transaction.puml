@@ -1,0 +1,35 @@
+@startuml
+actor User
+participant "OrderService" as Service
+participant "ProductService" as ProductService
+participant "OrderRepository" as OrderRepository
+
+User -> Service: createOrder(orderRequestDTO, userId)
+
+activate Service
+Service -> ProductService: findAllByIdIn(productIds)
+activate ProductService
+ProductService --> Service: List<Product>
+deactivate ProductService
+
+alt Productos faltantes
+    Service -> User: throw ConflictException("Some products do not exist")
+else Productos correctos
+    loop Para cada producto
+        Service -> Service: Validar cantidad > 0
+        alt Cantidad inválida
+            Service -> User: throw ConflictException("Quantity must be greater than 0")
+        else Cantidad válida
+            Service -> Service: Crear OrderItem\nAgregar al total
+        end
+    end
+
+    Service -> OrderRepository: save(order)
+    activate OrderRepository
+    OrderRepository --> Service: Order
+    deactivate OrderRepository
+
+    Service -> User: return new OrderResponseDTO(order)
+end
+deactivate Service
+@enduml

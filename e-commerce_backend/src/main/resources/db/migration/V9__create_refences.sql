@@ -6,6 +6,10 @@ ALTER TABLE "sales_orders"
     ADD CONSTRAINT "fk_sales_orders_user_id"
         FOREIGN KEY ("user_id") REFERENCES "auth_users" ("id");
 
+ALTER TABLE "sales_orders"
+    ADD CONSTRAINT "fk_sales_orders_shipping_address_id"
+        FOREIGN KEY ("shipping_address_id") REFERENCES "auth_user_addresses" ("id");
+
 ALTER TABLE "auth_user_addresses"
     ADD CONSTRAINT "fk_auth_user_addresses_user_id"
         FOREIGN KEY ("user_id") REFERENCES "auth_users" ("id");
@@ -21,7 +25,3 @@ ALTER TABLE "sales_order_items"
 ALTER TABLE "sales_invoices"
     ADD CONSTRAINT "fk_sales_invoices_order_id"
         FOREIGN KEY ("order_id") REFERENCES "sales_orders" ("id");
-
-ALTER TABLE "sales_transactions"
-    ADD CONSTRAINT "fk_sales_transactions_invoice_id"
-        FOREIGN KEY ("invoice_id") REFERENCES "sales_invoices" ("id");

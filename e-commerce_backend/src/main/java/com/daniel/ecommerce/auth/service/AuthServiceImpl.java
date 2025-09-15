@@ -1,13 +1,14 @@
 package com.daniel.ecommerce.auth.service;
 
-import com.daniel.ecommerce.auth.entity.UserEntity;
-import com.daniel.ecommerce.auth.enums.Role;
 import com.daniel.ecommerce.auth.dto.request.AuthCreateUserRequest;
 import com.daniel.ecommerce.auth.dto.request.AuthLoginRequest;
 import com.daniel.ecommerce.auth.dto.response.AuthResponse;
+import com.daniel.ecommerce.auth.entity.UserEntity;
+import com.daniel.ecommerce.auth.enums.Role;
 import com.daniel.ecommerce.auth.repository.UserRepository;
 import com.daniel.ecommerce.shared.exception.custom.ConflictException;
 import com.daniel.ecommerce.shared.security.jwt.JwtService;
+import com.daniel.ecommerce.shared.security.user.CustomPrincipal;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -53,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
 
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_".concat(Role.CLIENT.name()));
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, Collections.singleton(authority));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(new CustomPrincipal(userEntity.getId().toString(), username), null, Collections.singleton(authority));
 
         String accessToken = jwtService.createToken(authentication);
 
@@ -80,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new ConflictException("Incorrect Password");
         }
-
-        return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
+        //El username que viene del userDetails es el Id del usuario
+        return new UsernamePasswordAuthenticationToken(new CustomPrincipal(userDetails.getUsername(), username), password, userDetails.getAuthorities());
     }
 }

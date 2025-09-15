@@ -1,6 +1,7 @@
 package com.daniel.ecommerce.shared.security.jwt;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.daniel.ecommerce.shared.security.user.CustomPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,14 +40,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwtToken = jwtToken.substring(7);
 
             DecodedJWT decodedJWT = jwtService.validateToken(jwtToken);
-
-            String username = jwtService.extractUsername(decodedJWT);
-            String stringAuthorities = jwtService.getSpecificClaim(decodedJWT, "authorities").asString();
+            String stringAuthorities = decodedJWT.getClaim("authorities").asString();
 
             Collection<? extends GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(stringAuthorities);
-
+            CustomPrincipal customPrincipal = jwtService.extractCustomPrincipal(decodedJWT);
             SecurityContext context = SecurityContextHolder.createEmptyContext();
-            Authentication authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+            Authentication authenticationToken = new UsernamePasswordAuthenticationToken(customPrincipal, null, authorities);
             context.setAuthentication(authenticationToken);
             SecurityContextHolder.setContext(context);
 

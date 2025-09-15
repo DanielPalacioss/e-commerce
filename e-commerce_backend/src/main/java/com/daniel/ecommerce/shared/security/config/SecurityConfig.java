@@ -45,12 +45,51 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     // EndPoints publicos
                     http.requestMatchers(HttpMethod.POST, apiPrefix.concat("auth/**")).permitAll();
+                    // permitir swagger
+                    http.requestMatchers(
+                            apiPrefix.concat("swagger-ui/**"),
+                            apiPrefix.concat("docs/**"),
+                            apiPrefix.concat("api-docs/**"),
+                            apiPrefix.concat("swagger-resources/**"),
+                            apiPrefix.concat("webjars/**"),
+                            "swagger-ui/**"
+                    ).permitAll();
+                    // Product endpoints
+                    http.requestMatchers(HttpMethod.GET, apiPrefix.concat("products")).permitAll()
+                            .requestMatchers(HttpMethod.GET, apiPrefix.concat("products/*")).permitAll()
+                            .requestMatchers(apiPrefix.concat("products/**")).hasRole("ADMIN");
+
+
                     // EndPoints Privados
-                    http.requestMatchers(HttpMethod.GET, apiPrefix.concat("users/**")).hasAnyRole("CLIENT", "ADMIN");
+                    //User endpoints
+                    http.requestMatchers(HttpMethod.GET, apiPrefix.concat("users/me")).hasAnyRole("CLIENT", "ADMIN")
+                            .requestMatchers(HttpMethod.PATCH, apiPrefix.concat("users/me")).hasAnyRole("CLIENT", "ADMIN")
+                            //User Profile picture
+                            .requestMatchers(HttpMethod.PATCH, apiPrefix.concat("users/me/profile-picture")).hasAnyRole("CLIENT", "ADMIN")
+                            //Change password
+                            .requestMatchers(HttpMethod.PATCH, apiPrefix.concat("users/me/change-password")).hasAnyRole("CLIENT", "ADMIN")
+                            //User Address endpoints
+                            .requestMatchers(HttpMethod.GET, apiPrefix.concat("users/me/user-addresses")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.POST, apiPrefix.concat("users/me/user-addresses")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.PATCH, apiPrefix.concat("users/me/user-addresses/*")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.DELETE, apiPrefix.concat("users/me/user-addresses/*")).hasRole("CLIENT")
+                            .requestMatchers(apiPrefix.concat("users/**")).hasRole("ADMIN");
+
+                    //Order endpoints
+                    http.requestMatchers(HttpMethod.GET, apiPrefix.concat("orders/me")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.GET, apiPrefix.concat("orders/users/*")).hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.POST, apiPrefix.concat("orders/me")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.PATCH, apiPrefix.concat("orders/*/me")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.POST, apiPrefix.concat("orders/*/cancel/me")).hasRole("CLIENT");
+
+                    //Invoice endpoints
+                    http.requestMatchers(HttpMethod.GET, apiPrefix.concat("invoices/me")).hasRole("CLIENT")
+                            .requestMatchers(HttpMethod.POST, apiPrefix.concat("invoices/create/orders/*/payment_method/*")).hasRole("CLIENT");
 
 
                     http.anyRequest().denyAll();

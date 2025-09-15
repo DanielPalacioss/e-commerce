@@ -1,5 +1,6 @@
 package com.daniel.ecommerce.auth.service;
 
+import com.daniel.ecommerce.auth.dto.request.UpdateUserPasswordRequestDTO;
 import com.daniel.ecommerce.auth.dto.request.UpdateUserRequestDTO;
 import com.daniel.ecommerce.auth.dto.response.UserResponseDTO;
 import com.daniel.ecommerce.auth.entity.UserEntity;
@@ -9,11 +10,10 @@ import com.daniel.ecommerce.shared.exception.custom.ConflictException;
 import com.daniel.ecommerce.shared.exception.custom.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,13 +29,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserEntity getUserById(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+    }
+
+    @Override
     public UserResponseDTO getUserByUsername(String username) {
         UserEntity user = getUserEntityByUsername(username);
-        return new UserResponseDTO(user.getUsername(),
-                user.getName(),
-                user.getEmail(),
-                user.getProfilePictureUrl()
-        );
+        return new UserResponseDTO(user);
     }
 
     @Override
@@ -46,46 +47,36 @@ public class UserServiceImpl implements UserService {
 
         UserEntity updatedUser = userRepository.save(user);
 
-        return new UserResponseDTO(updatedUser.getUsername(),
-                updatedUser.getName(),
-                updatedUser.getEmail(),
-                updatedUser.getProfilePictureUrl()
-        );
+        return new UserResponseDTO(updatedUser);
     }
 
     @Override
-    public String updateUserProfilePicture(String username, MultipartFile file) {
+    public String uploadUserProfilePicture(String username, MultipartFile file) {
         UserEntity user = getUserEntityByUsername(username);
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = cloudinaryService.uploadOrReplaceFile(user.getProfilePicturePublicId(),
+                file, "users");
 
-        String profilePictureUrlExist = user.getProfilePictureUrl();
-        if(profilePictureUrlExist == null || !profilePictureUrlExist.isEmpty()){
-            result = cloudinaryService.uploadOrReplaceFile(null, file, "users");
-            user.setProfilePicturePublicId(result.get("public_id"));
-            user.setProfilePictureUrl(result.get("secure_url"));
+        if (user.getProfilePicturePublicId() == null || user.getProfilePicturePublicId().isEmpty()) {
+            user.setProfilePicturePublicId(result.get("publicId"));
         }
-        else{
-            result = cloudinaryService.uploadOrReplaceFile(user.getProfilePicturePublicId(), file, "users");
-            user.setProfilePicturePublicId(result.get("public_id"));
-            user.setProfilePictureUrl(result.get("secure_url"));
-        }
+        user.setProfilePictureUrl(result.get("url"));
+
         userRepository.save(user);
-
         return user.getProfilePictureUrl();
     }
 
     @Override
-    public String updateUserPassword(String username, String OldPassword, String newPassword) {
+    public String updateUserPassword(String username, UpdateUserPasswordRequestDTO passwordRequest) {
         UserEntity user = getUserEntityByUsername(username);
-        if(!passwordEncoder.matches(OldPassword, user.getPassword())){
+        if (!passwordEncoder.matches(passwordRequest.oldPassword(), user.getPassword())) {
             throw new ConflictException("Old password is incorrect");
         }
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(passwordRequest.newPassword()));
         userRepository.save(user);
         return "Password updated successfully";
     }
 
     private UserEntity getUserEntityByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User with username "+username+" not found"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found"));
     }
 }

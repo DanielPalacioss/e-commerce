@@ -1,0 +1,28 @@
+@startuml
+title Flujo de transacción: createProduct
+
+start
+
+:Recibe ProductRequestDTO;
+
+:Construir Product con builder;
+
+:productRepository.save(product);
+note right
+Se persiste el Product en la DB
+product.id generado
+Fin del persist parcial
+end note
+
+:productStockService.createProductStock(product);
+note right
+Crea ProductStock relacionado al Product
+Usa product.id para FK
+Si falla aquí → rollback de todo
+end note
+
+:Crear ProductResponseDTO(product);
+
+stop
+
+@enduml

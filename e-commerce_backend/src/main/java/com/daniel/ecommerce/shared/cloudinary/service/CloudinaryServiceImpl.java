@@ -3,16 +3,14 @@ package com.daniel.ecommerce.shared.cloudinary.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.daniel.ecommerce.shared.exception.custom.FileUploadException;
-import com.daniel.ecommerce.shared.cloudinary.enums.CloudinaryFolders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class CloudinaryServiceImpl implements CloudinaryService{
+public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinary;
 
@@ -20,22 +18,22 @@ public class CloudinaryServiceImpl implements CloudinaryService{
         this.cloudinary = cloudinary;
     }
 
-    private Map<String, String> doUpload(MultipartFile file, String folder) throws IOException {
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                ObjectUtils.asMap("folder", folder));
-
-        Map<String, String> result = new HashMap<>();
-        result.put("url", uploadResult.get("secure_url").toString());
-        result.put("publicId", uploadResult.get("public_id").toString());
-        return result;
-    }
-
     public Map<String, String> uploadOrReplaceFile(String oldPublicId, MultipartFile file, String folder) {
         try {
+            Map uploadResult;
             if (oldPublicId != null && !oldPublicId.isBlank()) {
-                cloudinary.uploader().destroy(oldPublicId, ObjectUtils.emptyMap());
+                uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                        ObjectUtils.asMap("public_id", oldPublicId, "overwrite", true)
+                );
+            } else {
+                uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                        ObjectUtils.asMap("folder", folder)
+                );
             }
-            return doUpload(file, folder);
+            Map<String, String> result = new HashMap<>();
+            result.put("url", uploadResult.get("secure_url").toString());
+            result.put("publicId", uploadResult.get("public_id").toString());
+            return result;
         } catch (Exception e) {
             throw new FileUploadException("Error uploading file");
         }

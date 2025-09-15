@@ -39,7 +39,7 @@ public class UserEntity {
     private Role role;
 
     @Setter
-    @Column(name = "profile_picture_Url", columnDefinition = "TEXT")
+    @Column(name = "profile_picture_url", columnDefinition = "TEXT")
     private String profilePictureUrl;
 
     @Setter

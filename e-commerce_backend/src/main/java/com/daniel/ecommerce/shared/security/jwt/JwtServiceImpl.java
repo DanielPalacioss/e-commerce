@@ -4,8 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.daniel.ecommerce.shared.security.user.CustomPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class JwtServiceImpl implements JwtService{
+public class JwtServiceImpl implements JwtService {
 
     private final long expirationMilliseconds;
 
@@ -34,7 +34,10 @@ public class JwtServiceImpl implements JwtService{
         Date expiration = new Date(issuedAt.getTime() + expirationMilliseconds);
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-        String username = authentication.getPrincipal().toString();
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
+        String username = principal.username();
+        String userId = principal.userId();
+
         String authorities = authentication.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -43,6 +46,7 @@ public class JwtServiceImpl implements JwtService{
         String jwtToken = JWT.create()
                 .withIssuer(issuer) // Who creates the token
                 .withSubject(username)
+                .withClaim("userId", userId)
                 .withClaim("authorities", authorities)
                 .withIssuedAt(issuedAt)
                 .withExpiresAt(expiration)
@@ -67,11 +71,7 @@ public class JwtServiceImpl implements JwtService{
         }
     }
 
-    public String extractUsername(DecodedJWT decodedJWT){
-        return decodedJWT.getSubject().toString();
-    }
-
-    public Claim getSpecificClaim(DecodedJWT decodedJWT, String claimName) {
-        return decodedJWT.getClaim(claimName);
+    public CustomPrincipal extractCustomPrincipal(DecodedJWT decodedJWT) {
+        return new CustomPrincipal(decodedJWT.getClaim("userId").asString(), decodedJWT.getSubject());
     }
 }

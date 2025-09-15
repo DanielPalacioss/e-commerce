@@ -25,11 +25,15 @@ application:
 
 # swagger-ui custom path
 springdoc:
+  api-docs:
+    path: api-docs
   swagger-ui:
-    disable-swagger-default-url: true
-    path: /docs
-    version: 1.0
-
+    path: ${API_PREFIX}docs #Redirecciona a la pagina por defecto de swagger
+    urls:
+      - url: ${API_PREFIX}api-docs
+        name: API v1
+    disable-swagger-default-url: true  # Deshabilita las URLs por defecto de Swagger
+    configUrl: ${API_PREFIX}api-docs/swagger-config  # URL para la configuración
 
 cloudinary:
   cloud:

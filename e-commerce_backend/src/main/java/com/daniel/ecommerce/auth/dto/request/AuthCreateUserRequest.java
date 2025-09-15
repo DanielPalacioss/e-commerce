@@ -1,6 +1,5 @@
 package com.daniel.ecommerce.auth.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -23,4 +22,5 @@ public record AuthCreateUserRequest(
         @NotBlank(message = "email cannot be blank or null")
         @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
         String email
-) {}
+) {
+}

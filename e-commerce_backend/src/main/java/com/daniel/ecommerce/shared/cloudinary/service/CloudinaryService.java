@@ -1,6 +1,5 @@
 package com.daniel.ecommerce.shared.cloudinary.service;
 
-import com.daniel.ecommerce.shared.cloudinary.enums.CloudinaryFolders;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
