@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: e-commerce-test
+  datasource:
+    # Para pruebas usa una BD en memoria o una BD real aislada
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false
+
+
+application:
+  jwt:
+    secret: test-secret-key
+    expiration: 3600000   # 1 hora
+  cors:
+    allowed-origins: "*"
+    allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  api:
+    path:
+      prefix: /api/v1/
+
+# Swagger en test lo puedes deshabilitar o mantenerlo simple
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /api-docs/swagger-ui
+    disable-swagger-default-url: true
+
+cloudinary:
+  cloud:
+    name: test-cloud
+  api:
+    key: test-key
+    secret: test-secret
+

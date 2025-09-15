@@ -11,6 +11,10 @@
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
+    "outDir": "./dist-ts",
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "rootDir": "./src",
 
     "baseUrl": ".",
     "paths": {

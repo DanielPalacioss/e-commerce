@@ -39,6 +39,11 @@ const submit = async () => {
   } catch (problem: unknown) {
     const err = problem as JsonProblem
     error.value = err.detail || "Error inesperado"
+    toast({
+      title: "Error",
+      description: error.value,
+      variant: "destructive",
+    })
   }
 }
 </script>

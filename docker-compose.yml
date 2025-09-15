@@ -1,9 +1,9 @@
 services:
-  e-commerce:
+  backend:
     image: e-commerce
-    container_name: container-e-commerce
+    container_name: e-commerce_backend
     build:
-      context: .
+      context: ./e-commerce_backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -11,9 +11,16 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_EXPIRATION_MILLISECOND: ${JWT_EXPIRATION_MILLISECOND}
+      JWT_REFRESH_EXPIRATION_MILLISECOND: ${JWT_REFRESH_EXPIRATION_MILLISECOND}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CORS_ALLOWED_METHODS: ${CORS_ALLOWED_METHODS}
+      API_PREFIX: ${API_PREFIX}
     networks:
       - e-commerce-network
     depends_on:
@@ -21,6 +28,7 @@ services:
 
   postgres:
     image: postgres:15
+    container_name: postgres_db
     ports:
       - "5432:5432"
     environment:
@@ -31,6 +39,21 @@ services:
       - e-commerce-network
     volumes:
       - e-commerce-data:/var/lib/postgresql/data
+
+  frontend:
+    image: frontend
+    container_name: e-commerce_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    networks:
+      - e-commerce-network
+    depends_on:
+      - backend
 
 networks:
   e-commerce-network:

@@ -1,4 +1,4 @@
-import api from "./axios"
+import api from "@/api/axios";
 import type {AuthCreateUserRequest, AuthLoginRequest, AuthResponse} from "@/types/auth"
 import {jwtDecode} from "jwt-decode";
 import {JwtPayload} from "@/lib/JwtPayload";

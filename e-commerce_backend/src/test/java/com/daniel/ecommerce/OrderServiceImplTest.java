@@ -115,13 +115,13 @@ class OrderServiceImplTest {
                 .shippingAddress(UserAddress.builder().id(addressId).build())
                 .status(status)
                 .totalPrice(new BigDecimal("100.00"))
-                .items(List.of(
+                .items(new ArrayList<>(List.of(
                         OrderItem.builder()
                                 .product(buildProduct(productId1, new BigDecimal("10.00")))
                                 .quantity(5)
                                 .price(new BigDecimal("10.00"))
                                 .build()
-                ))
+                )))
                 .build();
         // set createdAt para evitar NPE en DTO
         try {
