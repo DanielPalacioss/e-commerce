@@ -12,6 +12,9 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 # Copiar código
 COPY . .
 
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
 # Compilar proyecto
 RUN pnpm run build
 
