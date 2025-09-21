@@ -10,14 +10,14 @@ COPY mvnw pom.xml ./
 RUN chmod +x mvnw
 
 # Usa caché de Maven (BuildKit) para acelerar builds repetidos
-RUN --mount=type=cache,id=maven-repo,target=/root/.m2 \
+RUN --mount=type=cache,id=ecommerce-maven-repo,target=/root/.m2 \
     ./mvnw -B -DskipTests dependency:go-offline
 
 # Ahora sí copiamos el código
 COPY src ./src
 
 # Compilamos (sin tests) y generamos el jar
-RUN --mount=type=cache,id=maven-repo,target=/root/.m2 \
+RUN --mount=type=cache,id=ecommerce-maven-repo,target=/root/.m2 \
     ./mvnw -B clean package -DskipTests
 
 ### ===== Stage 2: Runtime (solo JRE, usuario no root) =====
