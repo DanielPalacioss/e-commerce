@@ -461,6 +461,8 @@ Esto evita duplicación de código, mejora la reutilización y mantiene un únic
 
 ---
 
+url del ecommerce: https://e-commerce-frontend.up.railway.app/home
+
 ### Uso de **Cloudinary**
 
 Se eligió **Cloudinary** para almacenar y servir imágenes de productos debido a:
