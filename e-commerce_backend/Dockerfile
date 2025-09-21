@@ -10,13 +10,15 @@ COPY mvnw pom.xml ./
 RUN chmod +x mvnw
 
 # Usa caché de Maven (BuildKit) para acelerar builds repetidos
-RUN ./mvnw -B -DskipTests dependency:go-offline
+RUN --mount=type=cache,id=maven-repo,target=/root/.m2 \
+    ./mvnw -B -DskipTests dependency:go-offline
 
 # Ahora sí copiamos el código
 COPY src ./src
 
 # Compilamos (sin tests) y generamos el jar
-RUN ./mvnw -B clean package -DskipTests
+RUN --mount=type=cache,id=maven-repo,target=/root/.m2 \
+    ./mvnw -B clean package -DskipTests
 
 ### ===== Stage 2: Runtime (solo JRE, usuario no root) =====
 FROM eclipse-temurin:17-jre AS runtime
